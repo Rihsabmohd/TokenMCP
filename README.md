@@ -2,79 +2,40 @@
 
 # TokenMCP - Solana Blockchain MCP Server
 
-**TokenMCP** is a Model Context Protocol (MCP) server implementation for interacting with the Solana blockchain. This server exposes tools to work with Solana wallets, transactions, and token-related data.
+**TokenMCP** is a Model Context Protocol (MCP) server that exposes powerful tools for querying token and yield data on the Solana blockchain. 
+
 
 ## 🚀 Features
 
-* **Get Wallet Balance**: Retrieve the balance of a Solana wallet.
-* **Get Solana Token Info**: Fetch relevant token information such as price, market cap, and liquidity for Solana tokens.
-* **Get Trending Tokens**: Retrieve the top 10 trending Solana tokens based on 24h volume, using the Birdeye API.
-* **MCP Compliant**: Fully compatible with the Model Context Protocol, allowing seamless integration into compatible clients.
-* **Schema Validation**: Tools are defined using `Zod` for strict input validation.
+- 🔍 **Get Wallet Balance** – Check any Solana wallet’s SOL balance
+- 📈 **Get Solana Token Info** – Lookup token price, market cap, and liquidity
+- 🚀 **Get Trending Tokens** – Top Solana tokens by 24h volume using Birdeye
+- 🧪 **Get Best Yields** – View best APYs from Solana protocols via DeFi Llama
+- ✅ **Zod Schema Validation** – Every tool uses strongly typed validation
+- 📦 **MCP Compliant** – Fully integrated with the Model Context Protocol standard
 
-## 🔧 Technologies Used
+---
 
-* **Solana Web3.js SDK** – Interaction with the Solana blockchain.
-* **Model Context Protocol (MCP)** – Standard protocol for defining and exposing tools.
-* **Zod** – Type-safe schema validation.
-* **TypeScript** – Strongly typed and modern tooling for development.
+
+## 📦 Tech Stack
+
+**Solana Web3.js** – Blockchain interaction
+
+**Zod** – Schema validation
+
+**TypeScript** – Type-safe code
+
+**Birdeye API** – Token data
+
+**DeFi Llama API** – Yield opportunities
+
+**MCP SDK** – Protocol interface for Claude and AI agents
 
 ## 📋 Requirements
 
 * **Node.js** v16+ (preferably LTS)
-* **Yarn** or **npm** (for package management)
+* **npm** (for package management)
 * **Birdeye API Key** (for fetching trending tokens)
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-Clone the repository to your local machine:
-
-```bash
-git clone https://github.com/yourusername/TokenMCP
-cd TokenMCP
-```
-
-### 2. Install Dependencies
-
-Install the required dependencies using `npm` or `yarn`:
-
-```bash
-npm install
-# or
-yarn install
-```
-
-### 3. Set Up Environment Variables
-
-Create a `.env` file in the root directory of the project and add your environment variables. This includes the Birdeye API key, which is required for the `getTrendingTokens` tool.
-
-#### Example `.env` file:
-
-```plaintext
-BIRDEYE_API_KEY=your_birdeye_api_key_here
-```
-
-You can obtain the API key by signing up on [Birdeye](https://bds.birdeye.so/).
-
-### 4. Build the MCP Server
-
-Build the server with the following command:
-
-```bash
-npm run build
-```
-
-### 5. Run the Server
-
-Start the MCP server with:
-
-```bash
-npm start
-```
-
-The server will now be running and will listen for requests via the Model Context Protocol.
 
 ## ⚙️ Tools & Their Descriptions
 
@@ -113,43 +74,113 @@ To use the `getTrendingTokens` tool, you must obtain an API key from Birdeye:
 1. Visit [Birdeye API](https://bds.birdeye.so/) to sign up and generate an API key.
 2. Once you have the API key, add it to the `.env` file as shown in the **Set Up Environment Variables** section above.
 
-## 🔧 API Usage
 
-### Example Request for `getBalance`:
+### 4.  **getBestYields**
+Description: Retrieve the top 10 highest-yielding farming and lending pools on the Solana blockchain using DeFi Llama.
+
+Inputs: None
+
+Example Usage:
+
+"What are the top yield farming opportunities on Solana right now?"
+
+"Show me the best APY pools available on Solana."
+
+
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+Clone the repository to your local machine:
+
+```bash
+git clone https://github.com/Rihsabmohd/TokenMCP.git
+cd TokenMCP
+```
+
+### 2. Install Dependencies
+
+Install the required dependencies using `npm` or `yarn`:
+
+```bash
+npm install @modelcontextprotocol/sdk zod
+npm install -D @types/node typescript
+
+```
+
+### 3. Set Up Environment Variables
+
+Create a `.env` file in the root directory of the project and add your environment variables. This includes the Birdeye API key, which is required for the `getTrendingTokens` tool.
+
+#### Example `.env` file:
+
+```plaintext
+BIRDEYE_API_KEY=your_birdeye_api_key_here
+```
+
+You can obtain the API key by signing up on [Birdeye](https://bds.birdeye.so/).
+
+### 4. Build the MCP Server
+
+Build the server with the following command:
+
+```bash
+npm run build
+```
+
+### 5. Inspect the server
+
+Inspect the MCP server and check if the tools are working properly:
+
+```bash
+npx @modelcontextprotocol/inspector node path/to/server/index.js...
+```
+
+replace ```path/to/server/index.js``` with the absolute path of your index.js
+
+### 🤖 Connecting your server to Claude Desktop
+
+You can connect TokenMCP to Claude Desktop (or any Claude app supporting MCP) to run these tools directly from your chat.
+
+First, make sure you have Claude for Desktop installed. 
+We’ll need to configure Claude for Desktop for whichever MCP servers you want to use. To do this, open your Claude for Desktop App configuration at 
+
+```bash 
+  code $env:AppData\Claude\claude_desktop_config.json
+```
+open the claude_desktop_config.json file and paste this 
 
 ```json
 {
-  "tool": "getBalance",
-  "params": {
-    "walletAddress": "your_wallet_address"
-  }
+    "mcpServers": {
+        "TOKENMCP": {
+            "command": "node",
+            "args": [
+                "C:\\Users\\HP\\Desktop\\Regen\\Solana\\TokenMCP\\build\\index.js"
+            ],
+            "env":{
+                "BIRDEYE_API_KEY":"your_birdeye_api_key_here"
+            }
+        }
+    }
 }
 ```
+This tells Claude for Desktop:
 
-### Example Request for `GetSolanaTokenInfo`:
+There’s an MCP server named “TOKENMCP”
+Launch it by running node /ABSOLUTE/PATH/TO/PARENT/FOLDER/TokenMCP/build/index.js
+Save the file, and restart Claude for Desktop.
 
-```json
-{
-  "tool": "GetSolanaTokenInfo",
-  "params": {
-    "contractAddress": "your_token_contract_address"
-  }
-}
-```
 
-### Example Request for `getTrendingTokens`:
 
-```json
-{
-  "tool": "getTrendingTokens",
-  "params": {}
-}
-```
 
-## 🛡️ Security Considerations
+## 🛡️ Security Tips
+Keep your .env file secret (it's gitignored).
 
-* **Private Keys**: Always protect your private keys. Ensure they are stored securely and never exposed in your code or publicly.
-* **Environment Variables**: Store sensitive data like API keys in environment variables. Never hardcode sensitive information in the source code.
+Never commit your API keys or wallet private keys.
+
+Use read-only wallets for balance queries when possible.
 
 ## 🤝 Contributing
 
