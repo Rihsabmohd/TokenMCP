@@ -13,4 +13,4 @@
 npm-debug.log*
 
 #adding index.js
-/src/index.js
+logs/*.js
