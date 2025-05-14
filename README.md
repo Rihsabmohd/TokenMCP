@@ -194,5 +194,4 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ### Final Notes:
 
-* Be sure to replace `your_wallet_address` and `your_token_contract_address` with actual addresses when using the tools.
 * Make sure your `.env` file is added to `.gitignore` to prevent accidentally committing sensitive information like your API key.
