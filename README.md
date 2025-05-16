@@ -143,25 +143,25 @@ HELIUS_RPC_URL=https://mainnet.helius-rpc.com/?api-key=your_helius_key_here
 
 ```
 
-🐦 Get your Birdeye API key here
+🐦 Get your [Birdeye API key here](https://www.helius.xyz/)
 
-⚡ Get your Helius RPC URL here
+⚡ Get your [Helius RPC URL here](https://www.helius.xyz/)
 
-🧪 Run & Inspect
-1. Build the project
+## 🧪 Run & Inspect
+**1. Build the project**
 
 ```bash
 npm run build
 ```
 
-2. Inspect the MCP Server
+**2. Inspect the MCP Server**
 ```bash
 npx @modelcontextprotocol/inspector node path/to/build/index.js
 ```
 
 Replace path/to/build/index.js with the actual path to your compiled entrypoint.
 
-🤖 Connect to Claude Desktop
+## 🤖 Connect to Claude Desktop
 To run TokenMCP tools from Claude, configure Claude Desktop with your MCP server.
 
 Open your Claude config file:
@@ -190,7 +190,7 @@ Add the following:
 ```
 Save and restart Claude Desktop.
 
-🛡️ Security Tips
+## 🛡️ Security Tips
 .env is already gitignored – do not expose it!
 
 Never hardcode private or API keys in your code
@@ -198,16 +198,13 @@ Never hardcode private or API keys in your code
 Use read-only public Solana wallets when querying balances
 
 
-🤝 Contributions
-Want to extend the server or add new tools? PRs and feedback are welcome!
 
-
-📄 License
-MIT – See LICENSE
-
-✅ Final Notes
+## ✅ Final Notes
 You must set both BIRDEYE_API_KEY and HELIUS_RPC_URL in your environment.
 
 This server will not boot without them.
 
 Run the inspector before connecting to Claude to ensure everything works.
+
+## 🤝 Contributions
+Want to extend the server or add new tools? PRs and feedback are welcome!
