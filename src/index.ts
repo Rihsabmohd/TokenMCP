@@ -1,17 +1,24 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { Connection, PublicKey, clusterApiUrl, ParsedAccountData } from "@solana/web3.js";
 import dotenv from "dotenv";
 
 
 
 dotenv.config();
-const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
-if (!BIRDEYE_API_KEY) {
-  throw new Error("Missing BIRDEYE_API_KEY in environment variables.");
-}
 
+const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
+const HELIUS_RPC_URL = process.env.HELIUS_RPC_URL;
+
+if (!BIRDEYE_API_KEY || !HELIUS_RPC_URL) {
+  const missingKeys = [
+    !BIRDEYE_API_KEY && "BIRDEYE_API_KEY",
+    !HELIUS_RPC_URL && "HELIUS_RPC_URL",
+  ].filter(Boolean);
+
+  throw new Error(`Missing required environment variable(s): ${missingKeys.join(", ")}`);
+}
 
 // Create server instances
 const server = new McpServer({
@@ -25,16 +32,6 @@ const server = new McpServer({
 
 
 
-
-interface TrendingToken {
-    address: string;
-    name: string;
-    symbol: string;
-    price_usd: number;
-    volume_usd_24h: number;
-    market_cap_usd: number;
-  }
-  
   interface YieldPool {
     chain: string;
     project: string;
@@ -47,7 +44,7 @@ interface TrendingToken {
 
 
 
-    const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+    const connection = new Connection(HELIUS_RPC_URL, 'confirmed');
 
     async function getBalance(walletAddress: string): Promise<string | null> {
         try {
@@ -230,6 +227,70 @@ interface TrendingToken {
           }
         }
       );
+
+      server.tool(
+        "getTopTokenHolders",
+        "Get top N holders of a Solana token by contract address, along with their percentage ownership",
+        {
+          tokenAddress: z
+            .string()
+            .describe("The token contract address (mint address) on Solana."),
+          count: z
+            .number()
+            .int()
+            .min(1)
+            .max(50)
+            .optional()
+            .describe("Number of top holders to return. Defaults to 5."),
+        },
+        async ({ tokenAddress, count }) => {
+          try {
+            const mint = new PublicKey(tokenAddress);
+            const largestAccounts = await connection.getTokenLargestAccounts(mint);
+            const tokenSupplyInfo = await connection.getParsedAccountInfo(mint);
+            const topCount = count ?? 5;
+      
+            // Get total supply
+            let totalSupply = 0;
+            if (
+              tokenSupplyInfo.value &&
+              "data" in tokenSupplyInfo.value &&
+              (tokenSupplyInfo.value.data as ParsedAccountData).parsed
+            ) {
+              const parsedData = (tokenSupplyInfo.value.data as ParsedAccountData).parsed;
+              totalSupply = Number(parsedData.info.supply);
+            }
+      
+            // Format holders
+            const topHolders = largestAccounts.value.slice(0, topCount).map((account, i) => {
+              const balance = Number(account.amount);
+              const percent = totalSupply > 0 ? ((balance / totalSupply) * 100).toFixed(2) : "0.00";
+              return `${i + 1}. ${account.address}
+        - Amount: ${balance}
+        - Ownership: ${percent}%`;
+            });
+      
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Top ${topCount} Holders for Token ${tokenAddress}:\n\n${topHolders.join("\n\n")}`,
+                },
+              ],
+            };
+          } catch (error: any) {
+            console.error("Error fetching top token holders:", error);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Failed to fetch token holders: ${error.message}`,
+                },
+              ],
+            };
+          }
+        }
+      );
       
       server.tool(
         "getBestYields",
@@ -278,6 +339,154 @@ interface TrendingToken {
         }
       );
       
+      server.tool(
+        "getCurrentFearGreedIndex",
+        "Get the current Crypto Fear & Greed Index, including value and classification.",
+        {},
+        async () => {
+          const API_URL = "https://api.alternative.me/fng/?limit=1";
+      
+          try {
+            const res = await fetch(API_URL);
+      
+            if (!res.ok) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Error fetching current FNG: HTTP ${res.status} - ${res.statusText}`,
+                  },
+                ],
+              };
+            }
+      
+            const json = await res.json();
+            const data = json.data?.[0];
+      
+            if (!data || !data.timestamp || !data.value || !data.value_classification) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: "Error: Unexpected response format from FNG API.",
+                  },
+                ],
+              };
+            }
+      
+            const timestamp = new Date(parseInt(data.timestamp) * 1000); // Convert seconds to ms
+      
+            return {
+              content: [
+                {
+                  type: "text",
+                  text:
+                    `Crypto Fear & Greed Index (as of ${timestamp.toUTCString()}):\n` +
+                    `Value: ${data.value}\n` +
+                    `Classification: ${data.value_classification}`,
+                },
+              ],
+            };
+          } catch (error: any) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Unexpected error: ${error.message}`,
+                },
+              ],
+            };
+          }
+        }
+      );
+
+      server.tool(
+        "analyzeFngTrend",
+        "Analyze Crypto Fear & Greed Index trend over a number of days.",
+        {
+          days: z
+            .number()
+            .int()
+            .min(1)
+            .describe("Number of days to analyze (must be a positive integer)."),
+        },
+        async ({ days }) => {
+          const API_URL = `https://api.alternative.me/fng/?limit=${days}`;
+      
+          try {
+            const res = await fetch(API_URL);
+      
+            if (!res.ok) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Error fetching data for analysis: HTTP ${res.status} - ${res.statusText}`,
+                  },
+                ],
+              };
+            }
+      
+            const json = await res.json();
+            const data: any[] = json.data;
+      
+            if (!data || data.length === 0) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: "Error: No data available for analysis.",
+                  },
+                ],
+              };
+            }
+      
+            const values = data.map((entry) => parseInt(entry.value));
+            const totalEntries = values.length;
+      
+            const sum = values.reduce((acc, val) => acc + val, 0);
+            const avg = sum / totalEntries;
+      
+            const latestValue = values[0];
+            const oldestValue = values[totalEntries - 1];
+      
+            let trend = "stable";
+            if (latestValue > oldestValue) trend = "rising";
+            else if (latestValue < oldestValue) trend = "falling";
+      
+            const latest = data[0];
+            const latestTimestamp = new Date(parseInt(latest.timestamp) * 1000);
+      
+            const result = [
+              `Fear & Greed Index Analysis (${days} days):`,
+              `Latest Value: ${latest.value} (${latest.value_classification}) at ${latestTimestamp.toUTCString()}`,
+              `Average Value: ${avg.toFixed(1)}`,
+              `Trend: ${trend}`,
+              `Data points analyzed: ${totalEntries}`,
+            ];
+      
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: result.join("\n"),
+                },
+              ],
+            };
+          } catch (error: any) {
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Unexpected error during analysis: ${error.message}`,
+                },
+              ],
+            };
+          }
+        }
+      );
+      
+
     
       
 

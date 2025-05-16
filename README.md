@@ -1,197 +1,213 @@
 
-
 # TokenMCP - Solana Blockchain MCP Server
 
-**TokenMCP** is a Model Context Protocol (MCP) server that exposes powerful tools for querying token and yield data on the Solana blockchain. 
-
-
-## 🚀 Features
-
-- 🔍 **Get Wallet Balance** – Check any Solana wallet’s SOL balance
-- 📈 **Get Solana Token Info** – Lookup token price, market cap, and liquidity
-- 🚀 **Get Trending Tokens** – Top Solana tokens by 24h volume using Birdeye
-- 🧪 **Get Best Yields** – View best APYs from Solana protocols via DeFi Llama
-- ✅ **Zod Schema Validation** – Every tool uses strongly typed validation
-- 📦 **MCP Compliant** – Fully integrated with the Model Context Protocol standard
+**TokenMCP** is a Model Context Protocol (MCP) server that exposes powerful tools for querying token, wallet, and yield data on the Solana blockchain. It supports Claude and AI agents via the MCP standard.
 
 ---
 
+## 🚀 Features
 
-## 📦 Tech Stack
+- 🔍 **Get Wallet Balance** – Check any Solana wallet’s SOL balance via Helius RPC
+- 📈 **Get Solana Token Info** – Lookup token price, FDV, and market cap via Dexscreener
+- 🚀 **Get Trending Tokens** – Top Solana tokens by 24h volume using Birdeye API
+- 👑 **Get Top Token Holders** – Retrieve top holders of a token using Helius + Web3
+- 🧪 **Get Best Yields** – View best APYs from Solana protocols via DeFi Llama
+- 😨 **Fear & Greed Index** – Check market sentiment via Alternative.me API
+- 📈 **FNG Trend Analysis** – Analyze Crypto Fear & Greed Index trends over time
+- ✅ **Zod Schema Validation** – All tools use strongly typed input validation
+- 📦 **MCP Compliant** – Ready to connect with Claude apps using MCP SDK
 
-**Solana Web3.js** – Blockchain interaction
+---
 
-**Zod** – Schema validation
+## 🛠 Tech Stack
 
-**TypeScript** – Type-safe code
+- **TypeScript** – Type-safe backend code
+- **Zod** – Input validation
+- **Solana Web3.js** – Wallet and token data
+- **Dexscreener API** – Token trading info
+- **Birdeye API** – Trending token stats
+- **DeFi Llama API** – Yield farming data
+- **Alternative.me API** – Fear & Greed Index
+- **Helius RPC** – High-quality Solana RPC
 
-**Birdeye API** – Token data
-
-**DeFi Llama API** – Yield opportunities
-
-**MCP SDK** – Protocol interface for Claude and AI agents
+---
 
 ## 📋 Requirements
 
-* **Node.js** v16+ (preferably LTS)
-* **npm** (for package management)
-* **Birdeye API Key** (for fetching trending tokens)
+- **Node.js** v16+
+- **npm**
+- **Birdeye API Key**
+- **Helius RPC URL**
 
-## ⚙️ Tools & Their Descriptions
+Both the **BIRDEYE_API_KEY** and **HELIUS_RPC_URL** must be saved in your `.env` file for the server to function properly.
 
-### 1. **getBalance**
+---
 
-* **Description**: Fetch the SOL balance of a wallet.
-* **Inputs**:
+## ⚙️ Tools & Descriptions
 
-  * `walletAddress` (string) – The wallet address in Base58 format.
-* **Example Usage**:
+### 1. `getBalance`
 
-  * `"What is the balance of wallet [walletAddress]?"`
+- **Description**: Get the SOL balance of a given wallet.
+- **Inputs**:  
+  `walletAddress` – Base58 Solana wallet address.
+- **Example**:  
+  _"What is the balance of wallet [walletAddress]?"_
 
-### 2. **GetSolanaTokenInfo**
+---
 
-* **Description**: Retrieve relevant information for a Solana token using its contract address.
-* **Inputs**:
+### 2. `GetSolanaTokenInfo`
 
-  * `contractAddress` (string) – The token's contract address on Solana.
-* **Example Usage**:
+- **Description**: Get token info (price, symbol, FDV, etc.) via Dexscreener.
+- **Inputs**:  
+  `contractAddress` – Solana token address.
+- **Example**:  
+  _"Get token info for [contractAddress]"_
 
-  * `"What is the information for token [contractAddress]?"`
+---
 
-### 3. **getTrendingTokens**
+### 3. `getTrendingTokens`
 
-* **Description**: Retrieve the top 10 trending Solana tokens by 24-hour volume using the Birdeye API.
-* **Inputs**: None
-* **Example Usage**:
+- **Description**: Top 10 Solana tokens by 24h volume via Birdeye.
+- **Inputs**: None
+- **Example**:  
+  _"Which Solana tokens are trending today?"_
 
-  * `"What are the top 10 trending Solana tokens?"`
+---
 
-#### **Important: Get Birdeye API Key**
+### 4. `getTopTokenHolders`
 
-To use the `getTrendingTokens` tool, you must obtain an API key from Birdeye:
+- **Description**: See the largest holders of a Solana token.
+- **Inputs**:  
+  `tokenAddress` – Mint address  
+  `count` (optional) – Number of top holders (default: 5, max: 50)
+- **Example**:  
+  _"Show top holders for [tokenAddress]"_
 
-1. Visit [Birdeye API](https://bds.birdeye.so/) to sign up and generate an API key.
-2. Once you have the API key, add it to the `.env` file as shown in the **Set Up Environment Variables** section above.
+---
 
+### 5. `getBestYields`
 
-### 4.  **getBestYields**
-Description: Retrieve the top 10 highest-yielding farming and lending pools on the Solana blockchain using DeFi Llama.
+- **Description**: Top APY pools on Solana via DeFi Llama.
+- **Inputs**: None
+- **Example**:  
+  _"What are the best yield farming opportunities on Solana?"_
 
-Inputs: None
+---
 
-Example Usage:
+### 6. `getCurrentFearGreedIndex`
 
-"What are the top yield farming opportunities on Solana right now?"
+- **Description**: Get the current crypto Fear & Greed Index.
+- **Inputs**: None
+- **Example**:  
+  _"What's the current market sentiment?"_
 
-"Show me the best APY pools available on Solana."
+---
 
+### 7. `analyzeFngTrend`
 
+- **Description**: Analyze Fear & Greed Index over time.
+- **Inputs**:  
+  `days` – Number of days to analyze
+- **Example**:  
+  _"Analyze FNG trend over the last 7 days."_
 
-## 🚀 Getting Started
+---
 
-### 1. Clone the Repository
+## 📦 Getting Started
 
-Clone the repository to your local machine:
+### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/Rihsabmohd/TokenMCP.git
+git clone https://github.com/your-username/TokenMCP.git
 cd TokenMCP
 ```
 
 ### 2. Install Dependencies
 
-Install the required dependencies using `npm` or `yarn`:
+Install the required dependencies using `npm`:
 
 ```bash
 npm install @modelcontextprotocol/sdk zod
 npm install -D @types/node typescript
 
 ```
+3. Set Up Environment Variables
+🛑 IMPORTANT: You must set both BIRDEYE_API_KEY and HELIUS_RPC_URL in a .env file.
+Without them, the server will fail to start.
 
-### 3. Set Up Environment Variables
+Create a .env file in the root directory:
 
-Create a `.env` file in the root directory of the project and add your environment variables. This includes the Birdeye API key, which is required for the `getTrendingTokens` tool.
-
-#### Example `.env` file:
-
-```plaintext
+```env
 BIRDEYE_API_KEY=your_birdeye_api_key_here
+HELIUS_RPC_URL=https://mainnet.helius-rpc.com/?api-key=your_helius_key_here
+
 ```
 
-You can obtain the API key by signing up on [Birdeye](https://bds.birdeye.so/).
+🐦 Get your Birdeye API key here
 
-### 4. Build the MCP Server
+⚡ Get your Helius RPC URL here
 
-Build the server with the following command:
+🧪 Run & Inspect
+1. Build the project
 
 ```bash
 npm run build
 ```
 
-### 5. Inspect the server
+2. Inspect the MCP Server
+```bash
+npx @modelcontextprotocol/inspector node path/to/build/index.js
+```
 
-Inspect the MCP server and check if the tools are working properly:
+Replace path/to/build/index.js with the actual path to your compiled entrypoint.
+
+🤖 Connect to Claude Desktop
+To run TokenMCP tools from Claude, configure Claude Desktop with your MCP server.
+
+Open your Claude config file:
 
 ```bash
-npx @modelcontextprotocol/inspector node path/to/server/index.js...
+code $env:AppData\\Claude\\claude_desktop_config.json
 ```
 
-replace ```path/to/server/index.js``` with the absolute path of your index.js
-
-### 🤖 Connecting your server to Claude Desktop
-
-You can connect TokenMCP to Claude Desktop (or any Claude app supporting MCP) to run these tools directly from your chat.
-
-First, make sure you have Claude for Desktop installed. 
-We’ll need to configure Claude for Desktop for whichever MCP servers you want to use. To do this, open your Claude for Desktop App configuration at 
-
-```bash 
-  code $env:AppData\Claude\claude_desktop_config.json
-```
-open the claude_desktop_config.json file and paste this 
+Add the following:
 
 ```json
 {
-    "mcpServers": {
-        "TOKENMCP": {
-            "command": "node",
-            "args": [
-                "C:\\Users\\HP\\Desktop\\Regen\\Solana\\TokenMCP\\build\\index.js"
-            ],
-            "env":{
-                "BIRDEYE_API_KEY":"your_birdeye_api_key_here"
-            }
-        }
+  "mcpServers": {
+    "TOKENMCP": {
+      "command": "node",
+      "args": [
+        "C:\\Absolute\\Path\\To\\TokenMCP\\build\\index.js"
+      ],
+      "env": {
+        "BIRDEYE_API_KEY": "your_birdeye_api_key_here",
+        "HELIUS_RPC_URL": "your_helius_rpc_url_here"
+      }
     }
+  }
 }
 ```
-This tells Claude for Desktop:
+Save and restart Claude Desktop.
 
-There’s an MCP server named “TOKENMCP”
-Launch it by running node /ABSOLUTE/PATH/TO/PARENT/FOLDER/TokenMCP/build/index.js
-Save the file, and restart Claude for Desktop.
+🛡️ Security Tips
+.env is already gitignored – do not expose it!
+
+Never hardcode private or API keys in your code
+
+Use read-only public Solana wallets when querying balances
 
 
+🤝 Contributions
+Want to extend the server or add new tools? PRs and feedback are welcome!
 
 
-## 🛡️ Security Tips
-Keep your .env file secret (it's gitignored).
+📄 License
+MIT – See LICENSE
 
-Never commit your API keys or wallet private keys.
+✅ Final Notes
+You must set both BIRDEYE_API_KEY and HELIUS_RPC_URL in your environment.
 
-Use read-only wallets for balance queries when possible.
+This server will not boot without them.
 
-## 🤝 Contributing
-
-This project is open for contributions from the community. If you have any suggestions or improvements, feel free to submit a pull request or open an issue.
-
-## 📜 License
-
-Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
-
----
-
-### Final Notes:
-
-* Make sure your `.env` file is added to `.gitignore` to prevent accidentally committing sensitive information like your API key.
+Run the inspector before connecting to Claude to ensure everything works.
